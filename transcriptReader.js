@@ -1,3 +1,9 @@
+var lines = Array(); // The raw lines of text from the audio transcript
+var player;  // The youtube video player
+var timestamps; // Store float time in seconds for each line in the transcript
+
+var youtubeVideoID = "XnY2CD4cCPk";  // Video ID of youtube video to load
+
 function readFile() {
     var fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -6,20 +12,19 @@ function readFile() {
         var file = e.target.files[0];
         var reader = new FileReader();
 
+        reader.readAsText(file);
+
         reader.onload = function() {
             document.getElementById('inputText').value = parseAndShortenTranscript(reader.result);
         }
-
-        reader.readAsText(file);
     }
 
     fileInput.click();
 }
 
-var lines;
 
 function parseAndShortenTranscript(transcript) {
-    // Takes text in the form of 
+    // Takes text in the form of
     // [00:00.000 --> 00:29.640] Hello
     // [01:00:29.640 --> 00:39.080] There
     // and converts it to
@@ -51,9 +56,18 @@ function parseAndShortenTranscript(transcript) {
         newTranscript += newLine;
     }
 
+    // Also calculate timestamps here
+    timestamps = Array(lines.length);
+    for (let i = 0; i < lines.length; i++) {
+        const timestamp = lines[i].substring(1, 6);
+        let minutes = parseInt(timestamp.split(":")[0]);
+        let seconds = parseInt(timestamp.split(":")[1]);
+        timestamps[i] = minutes * 60 + seconds;
+    }
+
     return newTranscript.substring(0, newTranscript.length - 1); // Remove newline
 }
-        
+
 document.addEventListener('contextmenu', function(event) {
     var selectedText = window.getSelection().toString();
     if (selectedText) {
@@ -63,15 +77,12 @@ document.addEventListener('contextmenu', function(event) {
         iframe.src = url;
     }
 });
-        
-var player;
-var timestamps; // Store float time in seconds for each line in the transcript
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
         height: '540',
         width: '960',
-        videoId: 'XnY2CD4cCPk',
+        videoId: youtubeVideoID,
         playerVars: {
             'autoplay': 0,
             'controls': 1,
@@ -79,20 +90,13 @@ function onYouTubeIframeAPIReady() {
             'showinfo': 0
         },
         events: {
-            'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
         }
     });
 }
 
-function onPlayerReady(event) {
-    // do something when player is ready
-    console.log("Ready");
-}
-
 function onPlayerStateChange(event) {
-    // do something when player state changes
-    console.log("State changed");
+    // Whenever the state of the video changes (pause, time skip, etc, scroll to the right spot)
     scrollToTime();
 }
 
@@ -100,18 +104,8 @@ function scrollToTime() {
     // Get the current time of the video
     var currentTime = player.getCurrentTime();
 
-    var transcript = document.getElementById('inputText').value;
-    const lines = transcript.split("\n");
-    timestamps = Array(lines.length);
-    for (let i = 0; i < lines.length; i++) {
-        const timestamp = lines[i].substring(1, 6);
-        let minutes = parseInt(timestamp.split(":")[0]);
-        let seconds = parseInt(timestamp.split(":")[1]);
-        timestamps[i] = minutes * 60 + seconds;
-    }
-
     // find current time line
-    line = 0;
+    let line = 0;
     for (let i = 0; i < timestamps.length; i++) {
         if (timestamps[i] > currentTime) {
             line = i;
@@ -127,18 +121,22 @@ function scrollToTime() {
 }
 
 function highlightCurrentText() {
+    // Check if nothing has been loaded yet
+    if (lines.length == 0) {
+        return;
+    }
+
     // Moves a transparent div onto the screen to highlight the current words that are being said
     var currentTime = player.getCurrentTime();
 
-    // Get top left corner of textarea
-    // const textLeft = $('#inputText').position().left;
-    // const textTop = $('#inputText').position().top;
-    
-    // Hardcode for now
-    const textLeft = 10;
-    const textTop = 555;
+    // Get top left corner of textarea. Apparently, jquery returns an array
+    const textLeft = $('#inputText')[0].offsetLeft;
+    const textTop = $('#inputText')[0].offsetTop;
 
     const highlightDiv = document.getElementById('textHighlight');
+
+    const timestampOffset = 100; // Offset from left of text area because timestamps take up space
+    const underlineOffset = 22;  // To position the underline under the line
 
     // find current time line
     lineNumber = 0;
@@ -156,18 +154,15 @@ function highlightCurrentText() {
 
     // Interpolate horizontally as well. Looks like there is an off by one error (subtract 1?)
     let xOffset = (currentTime - timestamps[lineNumber-1]) / (timestamps[lineNumber] - timestamps[lineNumber-1])
-    xOffset = 100 + xOffset * (lines[lineNumber-1].length * 12 - 100); // TODO What is this?
-    console.log(xOffset, lines[lineNumber-1].length);
-    const yOffset =  desiredScroll -  currentScroll + 19; // Plus to put it at the bottom
+    xOffset = timestampOffset + xOffset * (lines[lineNumber-1].length * 12 - timestampOffset);
+
+    const yOffset =  desiredScroll -  currentScroll + underlineOffset;
     highlightDiv.style.left = (textLeft + xOffset) + 'px';
     highlightDiv.style.top = (textTop + yOffset) + 'px';
 
 }
 
-setInterval(scrollToTime, 7500);
-setInterval(highlightCurrentText, 250);
-
-
+// Make it so we can pause and unpause the youtube video with space
 window.addEventListener('keydown', function(event) {
     // Check if the space bar is pressed (32). k = 75
     if (event.which === 32) {
@@ -179,3 +174,9 @@ window.addEventListener('keydown', function(event) {
         }
     }
 });
+
+//  Automatically scroll to current position in the textarea
+setInterval(scrollToTime, 7500);
+
+// Highlight the current time in the video with a red underline (approximatley)
+setInterval(highlightCurrentText, 250);
