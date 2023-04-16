@@ -34,6 +34,9 @@ function parseAndShortenTranscript(transcript) {
     // First, split into lines
     lines = transcript.split("\n");
 
+    // Also calculate timestamps here
+    timestamps = Array(lines.length);
+
     let newTranscript = ""
 
     // For each line, modify the line by extract the bit before and after the `]`
@@ -52,17 +55,17 @@ function parseAndShortenTranscript(transcript) {
         let timeStampLeft = timeStamp.split("-->")[0];
         timeStampLeft = timeStampLeft.substring(1, timeStampLeft.indexOf('.'));
 
+        // The hour numbers get added only if the time is over an hour
+        let timeSplits = timeStampLeft.split(":");
+        let hourFormat = (timeSplits.length == 3);
+        let hours = hourFormat ? parseInt(timeSplits[0]) : 0;
+        let minutes = parseInt(hourFormat ? timeSplits[1] : timeSplits[0]);
+        let seconds = parseInt(hourFormat ? timeSplits[2] : timeSplits[1]);
+
+        timestamps[i] = hours * 3600 + minutes * 60 + seconds;
+
         let newLine = "[" + timeStampLeft + "] " + sentence + "\n";
         newTranscript += newLine;
-    }
-
-    // Also calculate timestamps here
-    timestamps = Array(lines.length);
-    for (let i = 0; i < lines.length; i++) {
-        const timestamp = lines[i].substring(1, 6);
-        let minutes = parseInt(timestamp.split(":")[0]);
-        let seconds = parseInt(timestamp.split(":")[1]);
-        timestamps[i] = minutes * 60 + seconds;
     }
 
     return newTranscript.substring(0, newTranscript.length - 1); // Remove newline
@@ -166,6 +169,7 @@ function highlightCurrentText() {
 window.addEventListener('keydown', function(event) {
     // Check if the space bar is pressed (32). k = 75
     if (event.which === 32) {
+        event.preventDefault(); // Disable the "space scrolls down" feature but only if spacebar is the key presse
         // If playing, pause, otherwise, play
         if (player.getPlayerState() == 1) {
             player.pauseVideo();
