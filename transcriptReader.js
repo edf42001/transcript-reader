@@ -2,7 +2,7 @@ var lines = Array(); // The raw lines of text from the audio transcript
 var player;  // The youtube video player
 var timestamps; // Store float time in seconds for each line in the transcript
 
-var youtubeVideoID = "XnY2CD4cCPk";  // Video ID of youtube video to load
+var youtubeVideoID = "qy_jFczWM9s";  // Video ID of youtube video to load
 
 function readFile() {
     var fileInput = document.createElement('input');
@@ -119,8 +119,14 @@ function scrollToTime() {
     const textArea = document.getElementById('inputText');
     // Calculate the pixel height of each line
     const lineHeight = parseInt(window.getComputedStyle(textArea).lineHeight);
-    // Set the scrollTop property to scroll to the specified line
-    textArea.scrollTop = ((line - 1) - 1) * lineHeight;
+    
+    // Scroll to the specified line
+    // Use this instead of scroll-behavior: smooth because that interferes with yomichan's ability to read apparetnly
+    textArea.scroll({
+      top: ((line - 1) - 1) * lineHeight, 
+      left: 0, 
+      behavior: 'smooth'
+    });
 }
 
 function highlightCurrentText() {
