@@ -2,7 +2,7 @@ var lines = Array(); // The raw lines of text from the audio transcript
 var player;  // The youtube video player
 var timestamps; // Store float time in seconds for each line in the transcript
 
-var youtubeVideoID = "qy_jFczWM9s";  // Video ID of youtube video to load
+var youtubeVideoID = "SdSI5XLVbpA";  // Video ID of youtube video to load
 
 function readFile() {
     var fileInput = document.createElement('input');
@@ -83,8 +83,8 @@ document.addEventListener('contextmenu', function(event) {
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
-        height: '540',
-        width: '960',
+        height: 1100 * (9 / 16),
+        width: 1100,
         videoId: youtubeVideoID,
         playerVars: {
             'autoplay': 0,
