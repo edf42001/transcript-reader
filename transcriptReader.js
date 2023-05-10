@@ -2,7 +2,7 @@ var lines = Array(); // The raw lines of text from the audio transcript
 var player;  // The youtube video player
 var timestamps; // Store float time in seconds for each line in the transcript
 
-var youtubeVideoID = "SdSI5XLVbpA";  // Video ID of youtube video to load
+var youtubeVideoID = "RIlL96G__fU";  // Video ID of youtube video to load
 
 function readFile() {
     var fileInput = document.createElement('input');
@@ -71,36 +71,18 @@ function parseAndShortenTranscript(transcript) {
     return newTranscript.substring(0, newTranscript.length - 1); // Remove newline
 }
 
-document.addEventListener('contextmenu', function(event) {
-    var selectedText = window.getSelection().toString();
-    if (selectedText) {
-        event.preventDefault();
-        var url = "https://jisho.org/search/" + encodeURIComponent(selectedText);
-        var iframe = document.getElementById("jisho-iframe");
-        iframe.src = url;
-    }
-});
-
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
-        height: 1100 * (9 / 16),
-        width: 1100,
+        height: 1500 * (9 / 16),
+        width: 1500,
         videoId: youtubeVideoID,
         playerVars: {
             'autoplay': 0,
             'controls': 1,
             'rel': 0,
             'showinfo': 0
-        },
-        events: {
-            'onStateChange': onPlayerStateChange
         }
     });
-}
-
-function onPlayerStateChange(event) {
-    // Whenever the state of the video changes (pause, time skip, etc, scroll to the right spot)
-    scrollToTime();
 }
 
 function scrollToTime() {
@@ -119,12 +101,12 @@ function scrollToTime() {
     const textArea = document.getElementById('inputText');
     // Calculate the pixel height of each line
     const lineHeight = parseInt(window.getComputedStyle(textArea).lineHeight);
-    
+
     // Scroll to the specified line
     // Use this instead of scroll-behavior: smooth because that interferes with yomichan's ability to read apparetnly
     textArea.scroll({
-      top: ((line - 1) - 1) * lineHeight, 
-      left: 0, 
+      top: ((line - 1) - 1) * lineHeight,
+      left: 0,
       behavior: 'smooth'
     });
 }
@@ -145,7 +127,7 @@ function highlightCurrentText() {
     const highlightDiv = document.getElementById('textHighlight');
 
     const timestampOffset = 100; // Offset from left of text area because timestamps take up space
-    const underlineOffset = 22;  // To position the underline under the line
+    const underlineOffset = 34;  // To position the underline under the line
 
     // find current time line
     lineNumber = 0;
@@ -168,7 +150,6 @@ function highlightCurrentText() {
     const yOffset =  desiredScroll -  currentScroll + underlineOffset;
     highlightDiv.style.left = (textLeft + xOffset) + 'px';
     highlightDiv.style.top = (textTop + yOffset) + 'px';
-
 }
 
 // Make it so we can pause and unpause the youtube video with space
