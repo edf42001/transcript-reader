@@ -15,7 +15,11 @@ For extracting high accuracy subtitles, I use OpenAI's Whisper in a Jupyter note
 
 ### Lookup word definitions
 
-Originally, I programmed a system where by highlighting and right clicking a word, it would do a search for the selected text with Jisho, an online Japanese dictionary, in an iFrame to the right of the video. Then, I discovered the [Yomichan](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) browser extension, which has a more limited but similar functionality. However, Yomichan integrates seamlessly with [Anki](https://apps.ankiweb.net/), a flashcard system, to automatically create flashcards of newly learned vocab.
+Originally, I programmed a system where by highlighting and right clicking a word, it would do a search for the selected text with Jisho, an online Japanese dictionary, in an iFrame to the right of the video. Then, I discovered the [Yomichan](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) browser extension, which has a more limited but similar functionality. However, Yomichan integrates seamlessly with [Anki](https://apps.ankiweb.net/), a flashcard system, to automatically create flashcards of newly learned vocab. Compare the before and after below. By removing the side panel, I was able to increase the size of the video player and position the transcript over top, making it easier to follow along.
+
+![Jisho Version](media/jisho_version.png)
+![No Jisho Version](media/no_jisho_version.png)
+
 
 ### Additional features
 
@@ -25,4 +29,3 @@ The transcript is located in a text box, which will automatically scroll to matc
 ### Setup
 
 One issue I ran into is that browser extensions are not enabled on local html files (file://) by default, which prevented Yomichan from working, so I had to enable that in Chrome.
-
